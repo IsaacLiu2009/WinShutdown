@@ -62,8 +62,15 @@ int main(){
         putchar('\n');
         goto RESTART;
     }
-    char cmd[1000010];
+    if (delta > 315360000){
+        puts("时间间隔过长，请输入不超过10年的时间。");
+        system("pause");
+        putchar('\n');
+        goto RESTART;
+    }
+    char cmd[60];
     sprintf(cmd, "shutdown -s -t %lld", delta);
+    system("shutdown -a");
     system(cmd);
     puts("如若错误操作，使用shutdown -a命令取消关机。");
     system("pause");
