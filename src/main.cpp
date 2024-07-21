@@ -15,10 +15,11 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "io.hpp"
+#include <cstdlib>
 #include <ctime>
 #include <string>
 #include "i18n.hpp"
-// #include "i18n.hpp"
+const I18n i18n;
 bool input_time(int *year, int *month, int *date, int *hour, int *minute, int *second) {
     std::string target_time_str;
     gets(target_time_str);
@@ -29,10 +30,10 @@ time_t get_target_time() {
     year = month = date = hour = minute = second = -1;
     REINPUT:
     while (!input_time(&year, &month, &date, &hour, &minute, &second))
-        puts("格式错误，请重新输入。");
-    printfP("您输入的时间是：%04d/%02d/%02d %02d:%02d:%02d", year, month, date, hour, minute, second);
+        puts(i18n.get("inputTime.wrongFormat"));
+    printfP(i18n.get("inputTime.time").c_str(), year, month, date, hour, minute, second);
     putchar('\n');
-    puts("请输入“YES”确认，输入“REINPUT”重新输入，输入其他内容退出。");
+    puts(i18n.get("inputTime.confirm"));
     std::string cmd;
     gets(cmd);
     if (cmd == "REINPUT") goto REINPUT;
@@ -49,29 +50,25 @@ time_t get_target_time() {
 }
 int main() {
     noOutputSystem("chcp 65001");
-    I18n i18n;
-    puts("WinShutdown 版权所有（C）2024 IsaacLiu2009@outlook.com\n本程序从未提供品质担保。这是款自由软件，欢迎你在满足一定条件后对其再发布。\n");
-    RESTART:
-    puts("时间格式：YYYY/MM/DD hh:mm:ss，请输入时间。");
+    puts(i18n.get("license.start"));
+    puts(i18n.get("inputTime.title"));
     time_t delta = get_target_time() - time(nullptr);
-    puts("读入成功"); putchar('\n');
+    puts(i18n.get("inputTime.success")); putchar('\n');
     if (delta <= 60) {
-        puts("为了保证您错误操作后来得及取消，请输入超过1分钟的时间。");
+        puts(i18n.get("shutdown.tooShortTime"));
         system("pause");
-        putchar('\n');
-        goto RESTART;
+        return 0;
     }
     if (delta > 315360000) {
-        puts("时间间隔过长，请输入不超过10年的时间。");
+        puts(i18n.get("shutdown.tooLongTime"));
         system("pause");
-        putchar('\n');
-        goto RESTART;
+        return 0;
     }
     char cmd[60];
+    noOutputSystem("shutdown -a");
     sprintf(cmd, "shutdown -s -t %lld", delta);
-    system("shutdown -a");
-    system(cmd);
-    puts("如若错误操作，使用shutdown -a命令取消关机。");
+    noOutputSystem(cmd);
+    puts(i18n.get("bye"));
     system("pause");
     return 0;
 }
